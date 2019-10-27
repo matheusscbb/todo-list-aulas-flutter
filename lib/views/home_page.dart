@@ -29,6 +29,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomPadding: false,
       appBar: AppBar(title: Text('Lista de Tarefas')),
       floatingActionButton:
           FloatingActionButton(child: Icon(Icons.add), onPressed: _addNewTask),
@@ -42,7 +43,10 @@ class _HomePageState extends State<HomePage> {
         child: _loading ? CircularProgressIndicator() : Text("Sem tarefas!"),
       );
     } else {
-      return ListView.builder(
+      return ListView.separated(
+        separatorBuilder: (context, index) => Divider(
+        color: Colors.black38,
+        ),
         itemBuilder: _buildTaskItemSlidable,
         itemCount: _taskList.length,
       );
@@ -54,7 +58,20 @@ class _HomePageState extends State<HomePage> {
     return CheckboxListTile(
       value: task.isDone,
       title: Text(task.title),
-      subtitle: Text(task.description),
+      subtitle: Column(
+        children: <Widget>[
+          Row(
+            children: <Widget>[
+              Text(task.priority.toString(), style: TextStyle(color: Colors.redAccent),),              
+            ]
+          ),
+          Row(
+            children: <Widget>[
+              Text(task.description),              
+            ]
+          ),
+        ],
+      ),
       onChanged: (bool isChecked) {
         setState(() {
           task.isDone = isChecked;

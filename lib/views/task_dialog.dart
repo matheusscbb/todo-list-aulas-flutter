@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:todo_list/models/task.dart';
 
+GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
 class TaskDialog extends StatefulWidget {
   final Task task;
 
@@ -13,6 +15,8 @@ class TaskDialog extends StatefulWidget {
 class _TaskDialogState extends State<TaskDialog> {
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
+  List<DropdownMenuItem<String>> _dropDownMenuItems;
+  String _currentPriority;
 
   Task _currentTask = Task();
 
@@ -26,6 +30,8 @@ class _TaskDialogState extends State<TaskDialog> {
 
     _titleController.text = _currentTask.title;
     _descriptionController.text = _currentTask.description;
+    _dropDownMenuItems = getDropDownMenuItems();
+    _currentPriority = _dropDownMenuItems[0].value;
   }
 
   @override
@@ -33,6 +39,7 @@ class _TaskDialogState extends State<TaskDialog> {
     super.dispose();
     _titleController.clear();
     _descriptionController.clear();
+    
   }
 
   @override
@@ -43,14 +50,8 @@ class _TaskDialogState extends State<TaskDialog> {
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          TextField(
-              controller: _titleController,
-              decoration: InputDecoration(labelText: 'Título'),
-              autofocus: true),
-          TextField(
-              controller: _descriptionController,
-              decoration: InputDecoration(labelText: 'Descrição')),
-        ],
+          buildForm()
+        ]
       ),
       actions: <Widget>[
         FlatButton(
@@ -62,13 +63,87 @@ class _TaskDialogState extends State<TaskDialog> {
         FlatButton(
           child: Text('Salvar'),
           onPressed: () {
-            _currentTask.title = _titleController.value.text;
-            _currentTask.description = _descriptionController.text;
-
-            Navigator.of(context).pop(_currentTask);
+            if (_formKey.currentState.validate()) {
+              _currentTask.title = _titleController.value.text;
+              _currentTask.description = _descriptionController.text;
+              _currentTask.priority = int.parse(_currentPriority);
+              Navigator.of(context).pop(_currentTask);
+            }
           },
         ),
       ],
+    );
+  }
+
+
+  Form buildForm() {
+    return Form(
+      key: _formKey,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          buildTextFormField(
+            label: "Nome",
+            error: "Dê um nome para sua tarefa",
+            controller: _titleController,
+            hasFocus: true
+          ),
+          Padding(padding:  EdgeInsets.only(top: 24.0),),
+          DropdownButton(
+            value: _currentPriority,
+            items: _dropDownMenuItems,
+            onChanged: changedDropDownItem,
+          ),
+          // Padding(padding:  EdgeInsets.only(top: 24.0),),
+          // buildTextFormField(
+          //   type: "number",
+          //   label: "Prioridade",
+          //   error: "Adicione uma prioridade a sua tarefa",
+          //   controller: _priorityController
+          // ),
+          Padding(padding:  EdgeInsets.only(top: 24.0),),
+          buildTextFormField(
+            type: "multiline",
+            maxLines: 2,
+            label: "Descrição",
+            error: "Adicione uma descrição para sua tarefa",
+            controller: _descriptionController
+          ),
+        ],
+      ),
+    );
+  }
+
+  List<DropdownMenuItem<String>> getDropDownMenuItems() {
+    List<DropdownMenuItem<String>> items = new List();
+    int i = 1;
+    while (i<6) {
+      items.add(new DropdownMenuItem(
+          value: i.toString(),
+          child: new Text(i.toString())
+      ));
+      i++;
+    }
+    return items;
+  }
+  
+  void changedDropDownItem(String selectedPriority) {
+    setState(() {
+      _currentPriority = selectedPriority;
+    });
+  }
+
+  Widget buildTextFormField(
+      {TextEditingController controller, String error, String label, bool hasFocus = false,  String type = "", int maxLines = 1}) {
+    return TextFormField(
+      keyboardType: type == "multiline" ? TextInputType.multiline : type == "number" ? TextInputType.number : TextInputType.text,
+      maxLines: maxLines,
+      decoration: InputDecoration(border: OutlineInputBorder(), labelText: label),
+      controller: controller,
+      autofocus: hasFocus,
+      validator: (text) {
+        return text.isEmpty ? error : null;
+      },
     );
   }
 }
