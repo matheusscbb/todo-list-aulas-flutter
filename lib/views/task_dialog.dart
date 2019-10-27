@@ -94,13 +94,6 @@ class _TaskDialogState extends State<TaskDialog> {
             items: _dropDownMenuItems,
             onChanged: changedDropDownItem,
           ),
-          // Padding(padding:  EdgeInsets.only(top: 24.0),),
-          // buildTextFormField(
-          //   type: "number",
-          //   label: "Prioridade",
-          //   error: "Adicione uma prioridade a sua tarefa",
-          //   controller: _priorityController
-          // ),
           Padding(padding:  EdgeInsets.only(top: 24.0),),
           buildTextFormField(
             type: "multiline",

@@ -4,6 +4,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:todo_list/helpers/task_helper.dart';
 import 'package:todo_list/models/task.dart';
 import 'package:todo_list/views/task_dialog.dart';
+import 'package:percent_indicator/circular_percent_indicator.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -30,7 +31,22 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomPadding: false,
-      appBar: AppBar(title: Text('Lista de Tarefas')),
+      appBar: AppBar(
+      title: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+
+        Text("Lista de tarefas"),
+        new CircularPercentIndicator(
+          radius: 45.0,
+          lineWidth: 5.0,
+          percent: getProgress(_taskList),
+          center: new Text((getProgress(_taskList) * 100).toInt().toString() + '%'),
+          progressColor: Colors.lightBlue,
+        )
+
+        ]),
+      ),
       floatingActionButton:
           FloatingActionButton(child: Icon(Icons.add), onPressed: _addNewTask),
       body: _buildTaskList(),
@@ -156,5 +172,19 @@ class _HomePageState extends State<HomePage> {
         },
       ),
     )..show(context);
+  }
+
+    getProgress(list){
+    double contIsDone = 0;
+
+    for(var task in list){
+      if(task.isDone == true){
+        contIsDone ++;
+      }
+    }
+
+    double percent = (contIsDone / list.length);
+
+    return percent;
   }
 }
