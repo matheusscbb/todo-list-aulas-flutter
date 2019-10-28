@@ -183,7 +183,7 @@ class _HomePageState extends State<HomePage> {
       }
     }
 
-    double percent = (contIsDone / list.length);
+    double percent = list.length == 0 ? 0 : (contDone / list.length);
 
     return percent;
   }
